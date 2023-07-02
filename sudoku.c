@@ -2,8 +2,9 @@
 
 static bool	solve_puzzle(t_grid* grid)
 {
-	int pos = 0;
+	int pos = 0; static uint32_t iter = 0;
 
+	iter++;
 	while (pos < 81)
 	{
 		if (grid->board[pos].solved == false)
@@ -24,7 +25,7 @@ static bool	solve_puzzle(t_grid* grid)
 		}
 		pos++;
 	}
-	return (true);
+	return (printf("Recursive iterations: %d\n", iter), true);
 }
 
 static void	pre_solve(t_grid* grid)
@@ -72,12 +73,12 @@ int	main(int argc, char **argv)
 
 	if (argc != 82)
 		return (1);
+
 	parse_input(&grid, argv);
 	printf("Initial board:\n\n");
 	print_board(&grid);
+
 	pre_solve(&grid);
-	printf("\nPre-solved board:\n\n");
-	print_board(&grid);
 	if (solve_puzzle(&grid) == true)
 	{
 		printf("\nSolved!\nFinal board:\n\n");
