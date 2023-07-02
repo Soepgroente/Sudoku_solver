@@ -10,23 +10,26 @@
 # include <ctype.h>
 # include <string.h>
 
-int***	update_row(int*** grid, int x);
-int***	update_column(int*** grid, int y);
-int***	update_box(int*** grid, int boxnum);
+typedef struct s_cell
+{
+	uint8_t	value;
+	bool	solved;
+}	t_cell;
 
-bool	number_solved(int* num);
-void	box_cells(int boxnum, int* x, int* y);
-int*	copy_cell(int* dest, int* src);
+typedef struct s_grid
+{
+	t_cell	board[81];
+}	t_grid;
 
 /* Utilities */
 
-void	print_board(int*** grid);
-void	print_cell(int* cell);
-void	print_row(int** row);
+void	print_board(t_grid* grid);
 
 /* Methods */
 
-int***	check_board(int*** grid);
+/* Vision */
 
+bool	check_if_possible(t_cell* board, uint8_t pos, uint8_t try);
+bool	single_possibility(t_cell* board, uint8_t pos);
 
 #endif

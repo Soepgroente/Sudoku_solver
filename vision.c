@@ -1,125 +1,79 @@
 #include "sudoku.h"
 
-int*	update_cell(int* cell, int* rmv)
-{
-	int i = 1;
-
-	if (cell[0] == 1)
-		return (cell);
-	while (i < 10)
-	{
-		for (int q = 0; q < 9; q++)
-			if (cell[i] == rmv[q])
-				cell[i] = 0;
-		i++;
-	}
-	return (cell);
-}
-
-int*	solve_cell(int* cell)
+static bool	check_row(t_cell* board, uint8_t pos, uint8_t try)
 {
 	int i = 0;
 
-	if (cell[0] == 1)
-		return (cell);
-	else
-		cell[0] = 1;
+	pos -= pos % 9;
 	while (i < 9)
 	{
+		if (board[pos + i].value == try)
+			return (false);
 		i++;
-		if (cell[i] != 0)
-		{
-			cell[1] = i;
-			if (i != 1)
-				cell[i] = 0;
-		}
 	}
-	return (cell);
+	return (true);
 }
 
-int***	update_row(int*** grid, int x)
+static bool	check_column(t_cell* board, uint8_t pos, uint8_t try)
 {
-	int i = 0; int y = 0;
-	int* tmp;
+	int i = 0;
+
+	pos = pos % 9;
+	while (i < 81)
+	{
+		if (board[pos + i].value == try)
+			return (false);
+		i += 9;
+	}
+	return (true);
+}
+
+static bool	check_box(t_cell* board, uint8_t pos, uint8_t try)
+{
+	int i = 0;
 	
-	tmp = calloc(10, sizeof(int));
-	while (y < 9)
+	pos -= pos % 3;
+	while ((pos - pos % 9) % 27 != 0)
+		pos -= 9;
+	while (i < 27)
 	{
-		if (number_solved(grid[x][y]) == true)
+		for (int x = 0; x < 3; x++)
 		{
-			grid[x][y] = solve_cell(grid[x][y]);
-			tmp[i] = grid[x][y][1];
-			i++;
+			if (board[pos + i + x].value == try)
+				return (false);
 		}
-		y++;
+		i += 9;
 	}
-	y = 0;
-	while (y < 9)
-	{
-		grid[x][y] = update_cell(grid[x][y], tmp);
-		y++;
-	}
-	free(tmp);
-	return (grid);
+	return (true);
 }
 
-int***	update_column(int*** grid, int y)
+bool	check_if_possible(t_cell* board, uint8_t pos, uint8_t try)
 {
-	int i = 0; int x = 0;
-	int* tmp;
-
-	tmp = calloc(10, sizeof(int));
-	while (x < 9)
-	{
-		if (number_solved(grid[x][y]) == true)
-		{
-			grid[x][y] = solve_cell(grid[x][y]);
-			tmp[i] = grid[x][y][1];
-			i++;
-		}
-		x++;
-	}
-	x = 0;
-	while (x < 9)
-	{
-		update_cell(grid[x][y], tmp);
-		x++;
-	}
-	free(tmp);
-	return (grid);
+	if (check_row(board, pos, try) == true && \
+		check_column(board, pos, try) == true && \
+		check_box(board, pos, try) == true)
+		return (true);
+	else
+		return (false);
 }
 
-int***	update_box(int*** grid, int boxnum)
+bool	single_possibility(t_cell* board, uint8_t pos)
 {
-	int i; int x; int y; int z = 0; int y2;
+	int count = 0; int value = 0;
 
-	box_cells(boxnum, &x, &y);
-	i = boxnum + 9;
-	y2 = y + 3;
-	while (z < 9)
+	for (int i = 1; i <= 9; i++)
 	{
-		grid[i][z] = copy_cell(grid[i][z], grid[x][y]);
-		z++;
-		y++;
-		if (y == y2)
+		if (check_if_possible(board, pos, i) == true)
 		{
-			y -= 3;
-			x++;
+			value = i;
+			count++;
 		}
 	}
-	box_cells(boxnum, &x, &y);
-	grid = update_row(grid, i);
-	z = 0;
-	while (z < 9)
+	if (count == 1)
 	{
-		grid[x][y] = copy_cell(grid[x][y], grid[i][z]);
-		z++;
-		y++;
-		if (y == y2)
-		{
-			y -= 3;
-			x++;
-		}
+		board[pos].value = value;
+		return (true);
 	}
-	return (grid);
+	else
+		return (false);
 }

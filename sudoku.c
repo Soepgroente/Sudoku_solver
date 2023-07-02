@@ -1,104 +1,91 @@
 #include "sudoku.h"
 
-int*** create_board(void)
+static bool	solve_puzzle(t_grid* grid)
 {
-	int*** grid;
-	int x = 0;
-	int y;
+	int pos = 0;
 
-	grid = calloc(18, sizeof(int**));
-	while (x < 18)
+	while (pos < 81)
 	{
-		y = 0;
-		grid[x] = calloc(9, sizeof(int*));
-		while (y < 9)
+		if (grid->board[pos].solved == false)
 		{
-			grid[x][y] = calloc(10, sizeof(int));
-			y++;
+			for (int try = 1; try <= 9; try++)
+			{
+				if (check_if_possible(grid->board, pos, try) == true)
+				{
+					grid->board[pos].value = try;
+					grid->board[pos].solved = true;
+					if (solve_puzzle(grid) == true)
+						return (true);
+				}
+				grid->board[pos].value = 0;
+				grid->board[pos].solved = false;
+			}
+			return (false);
 		}
-		x++;
+		pos++;
 	}
-	return (grid);
+	return (true);
 }
 
-void	parse_input(int*** grid, char** argv)
+static void	pre_solve(t_grid* grid)
 {
-	int i = 1;
-	int arg, x = 0, y, z = 0; int y2 = 0; int boxnum = 0;
+	int i = 0; int check = 0;
 
-	while (argv[i] && x < 9)
+	while (i < 81)
 	{
-		y = 0;
-		while (y < 9)
-		{
-			z = 1;
-			if (strlen(argv[i]) != 1 || (!isdigit(*argv[i])))
-			{
-				puts("Invalid input");
-				exit(EXIT_FAILURE);
-			}
-			arg = atoi(argv[i]);
-			if (arg == 0)
-			{
-				while (z < 10)
-				{
-					grid[x][y][z] = z;
-					z++;
-				}
-			}
-			else
-			{
-				grid[x][y][0] = 1;
-				grid[x][y][1] = arg;
-			}
+		while (i < 81 && grid->board[i].solved == true)
 			i++;
-			y++;
-		}
-		x++;
-	}
-	i = 9;
-	box_cells(boxnum, &x, &y);
-	while (x < 9 && y < 9)
-	{
-		z = 0;
-		y2 = y + 3;
-		while (z < 9)
+		if (i < 81 && single_possibility(grid->board, i) == true)
 		{
-			copy_cell(grid[i][z], grid[x][y]);
-			z++;
-			y++;
-			if (y == y2)
-			{
-				y -= 3;
-				x++;
-			}
+			check = 1;
+			i++;
 		}
-		boxnum++;
-		box_cells(boxnum, &x, &y);
+		i++;
+	}
+	if (check == 1)
+		pre_solve(grid);
+}
+
+static void	parse_input(t_grid* grid, char** argv)
+{
+	int i = 0;
+
+	while (argv[i + 1])
+	{
+		if (strlen(argv[i + 1]) != 1 || (!isdigit(*argv[i + 1])))
+		{
+			puts("Invalid input");
+			exit(EXIT_FAILURE);
+		}
+		grid->board[i].value = atoi(argv[i + 1]);
+		if (grid->board[i].value == 0)
+			grid->board[i].solved = false;
+		else
+			grid->board[i].solved = true;
 		i++;
 	}
 }
 
 int	main(int argc, char **argv)
 {
-	int x = 0;
+	t_grid	grid;
 
 	if (argc != 82)
 		return (1);
-	int*** grid = create_board();
-	parse_input(grid, argv);
-	printf("Initial board:\n");
-	print_board(grid);
- 	while (x < 100)
+	parse_input(&grid, argv);
+	printf("Initial board:\n\n");
+	print_board(&grid);
+	pre_solve(&grid);
+	printf("\nPre-solved board:\n\n");
+	print_board(&grid);
+	if (solve_puzzle(&grid) == true)
 	{
-		for (int i = 0; i < 9; i++)
-			grid = update_row(grid, i);
-		for (int q = 0; q < 9; q++)
-			grid = update_column(grid, q);
-		for (int z = 0; z < 9; z++)
-			grid = update_box(grid, z);
-		x++;
+		printf("\nSolved!\nFinal board:\n\n");
+		print_board(&grid);
 	}
-	printf("Final board:\n");
-	print_board(grid);
+	else
+	{
+		printf("Couldn't solve :-(\n");
+		print_board(&grid);
+	}
 }
