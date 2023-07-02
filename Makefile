@@ -2,7 +2,7 @@ NAME	= sudoku_solver
 RM		= rm -rf
 CC		= gcc
 CFLAGS	= -Wall -Werror -Wextra #-g3 -fsanitize=address
-SRCS	= methods.c sudoku.c utilities.c vision.c
+SRCS	= sudoku.c utilities.c vision.c
 
 OBJDIR	= Sudobjects
 
@@ -16,7 +16,7 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(NAME): $(OBJS) $(OBJDIR)
+$(NAME): $(OBJDIR) $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 
 clean:	
