@@ -91,5 +91,5 @@ int	main(int argc, char **argv)
 		print_board(&grid);
 	}
 	end_time = clock();
-	printf("Running time (seconds): %.2f\n", (float)end_time - start_time / CLOCKS_PER_SEC);
+	printf("Running time (seconds): %.2f\n", (float)((end_time - start_time) / CLOCKS_PER_SEC));
 }
