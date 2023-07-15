@@ -9,6 +9,7 @@
 # include <stdbool.h>
 # include <ctype.h>
 # include <string.h>
+# include <time.h>
 
 typedef struct s_cell
 {

@@ -2,7 +2,7 @@
 
 static bool	solve_puzzle(t_grid* grid)
 {
-	int pos = 0; static uint32_t iter = 0;
+	int pos = 0; static unsigned long long iter = 0;
 
 	iter++;
 	while (pos < 81)
@@ -25,7 +25,7 @@ static bool	solve_puzzle(t_grid* grid)
 		}
 		pos++;
 	}
-	return (printf("Recursive iterations: %d\n", iter), true);
+	return (printf("Recursive iterations: %llu\n", iter), true);
 }
 
 static void	pre_solve(t_grid* grid)
@@ -70,14 +70,15 @@ static void	parse_input(t_grid* grid, char** argv)
 int	main(int argc, char **argv)
 {
 	t_grid	grid;
+	clock_t start_time; clock_t end_time;
 
+	printf("Argc: %d\n", argc);
 	if (argc != 82)
 		return (1);
-
 	parse_input(&grid, argv);
 	printf("Initial board:\n\n");
 	print_board(&grid);
-
+	start_time = clock();
 	pre_solve(&grid);
 	if (solve_puzzle(&grid) == true)
 	{
@@ -89,4 +90,6 @@ int	main(int argc, char **argv)
 		printf("Couldn't solve :-(\n");
 		print_board(&grid);
 	}
+	end_time = clock();
+	printf("Running time (seconds): %.2f\n", (float)end_time - start_time / CLOCKS_PER_SEC);
 }
